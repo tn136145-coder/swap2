@@ -1,1 +1,298 @@
-The requested file reference is not currently visible. Use files.search or files.list to rediscover the file, then retry with a returned ref_id or file_id.
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SOKFARM - Logistics Thông Minh</title>
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --brand-green:#1f5c3f;
+  --brand-green-dark:#123b28;
+  --brand-gold:#d9a441;
+  --status-green:#2f9e5c;
+  --status-yellow:#e0a52c;
+  --status-red:#d1483f;
+  --text:#2a2420;
+  --card-bg:#ffffff;
+  --bg:#f2ecdd;
+  --border:#e3d9c2;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --text:#f0ead9; --card-bg:#221e19; --bg:#15120f; --border:#3a332a; }
+}
+:root[data-theme="dark"]{ --text:#f0ead9; --card-bg:#221e19; --bg:#15120f; --border:#3a332a; }
+*{box-sizing:inherit;margin:0;padding:0;}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%;}
+body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased;}
+.app{max-width:430px;margin:0 auto;min-height:100%;background:var(--card-bg);box-shadow:0 0 40px rgba(0,0,0,.18);display:flex;flex-direction:column;}
+header{background:var(--brand-green);color:#fff;padding:14px 16px;padding-top:calc(14px + env(safe-area-inset-top,0px));position:sticky;top:0;z-index:5;}
+header h1{font-size:16px;font-weight:700;}
+header p{font-size:12px;opacity:.85;margin-top:2px;}
+nav.tabs{display:flex;background:var(--brand-green-dark);}
+nav.tabs button{flex:1;background:none;border:none;color:#dccfa6;padding:10px 2px;font-size:12px;cursor:pointer;}
+nav.tabs button.active{color:#fff;border-bottom:3px solid var(--brand-gold);font-weight:700;}
+main{flex:1;padding:0 14px 14px;}
+.hero{margin:0 -14px 14px;padding:20px 16px;background:linear-gradient(160deg,var(--brand-green),var(--brand-green-dark));color:#fff;}
+.hero .eyebrow{font-size:12px;opacity:.85;}
+.hero .big{font-size:32px;font-weight:700;margin-top:2px;}
+.hero .sub{font-size:12px;opacity:.9;margin-top:2px;}
+.hero .stat-grid span{opacity:.85;}
+.card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;}
+.card b{font-size:13px;}
+.muted{opacity:.65;font-size:12px;}
+.field{margin-top:10px;}
+.field label{display:block;font-size:11px;opacity:.65;margin-bottom:3px;}
+.field input{width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;font-family:inherit;}
+.field input:focus{outline:2px solid var(--brand-gold);outline-offset:1px;}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center;}
+.stat b{font-size:19px;display:block;}
+.stat span{font-size:11px;opacity:.65;}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px;}
+.dot.green{background:var(--status-green);} .dot.yellow{background:var(--status-yellow);} .dot.red{background:var(--status-red);}
+.view{display:none;} .view.active{display:block;}
+button.primary{width:100%;background:var(--brand-gold);border:none;color:#3a2b0a;padding:12px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;margin-top:10px;}
+.row{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;line-height:1.5;}
+.row>span:last-child{text-align:right;white-space:nowrap;}
+.row:last-child{border-bottom:none;}
+.log{font-size:12px;max-height:150px;overflow-y:auto;}
+.log div{padding:5px 0;border-bottom:1px solid var(--border);}
+svg{width:100%;height:auto;display:block;margin-top:8px;}
+@keyframes flashRow{0%{background:rgba(217,164,65,.4);}100%{background:transparent;}}
+.flash{animation:flashRow 1.6s ease;}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>🥥 SOKFARM Smart Logistics</h1>
+    <p>Thu gom mật hoa dừa thông minh bằng AI</p>
+  </header>
+  <nav class="tabs">
+    <button class="active" data-view="farmer">🧑‍🌾 Nông hộ</button>
+    <button data-view="driver">🚚 Tài xế</button>
+    <button data-view="supervisor">🖥️ Giám sát</button>
+  </nav>
+  <main>
+    <section id="farmer" class="view active">
+      <div class="hero">
+        <div class="eyebrow">Vườn A – Hộ ông Sok Tha</div>
+        <div class="big" id="farmerTotal">0L</div>
+        <div class="sub"><span class="dot green" id="heroDot"></span><span id="heroStatus">an toàn</span> · thu hôm nay</div>
+      </div>
+      <div class="card">
+        <b>🌡️ Cảm biến môi trường tại vườn</b>
+        <div class="stat-grid" style="margin-top:8px">
+          <div class="stat"><b id="tempVal">31°C</b><span>Nhiệt độ</span></div>
+          <div class="stat"><b><span class="dot green" id="tempDot"></span></b><span id="tempLabel">an toàn</span></div>
+          <div class="stat"><b>4h</b><span>Từ lần cân gần nhất</span></div>
+        </div>
+        <p id="tempWindow" style="font-size:12px;margin-top:8px"></p>
+        <button class="primary" style="background:var(--bg);color:var(--text);border:1px solid var(--border)" onclick="raiseTemp()">☀️ Mô phỏng trời nắng gắt hơn</button>
+      </div>
+      <div class="card">
+        <b>📝 Nhập thu hoạch mới</b>
+        <div class="field">
+          <label>Địa điểm / vườn</label>
+          <input id="inLoc" type="text" value="Vườn A - lô 3">
+        </div>
+        <div class="field">
+          <label>Số lượng thu hoạch (lít)</label>
+          <input id="inQty" type="number" placeholder="VD: 28" min="0" step="0.5">
+        </div>
+        <div class="field">
+          <label>Giá nhận được (VNĐ)</label>
+          <input id="inPrice" type="number" placeholder="Tự gợi ý theo số lượng" min="0" step="1000">
+          <div class="muted" style="margin-top:3px">Gợi ý tự động ~50.000đ/lít, có thể chỉnh lại</div>
+        </div>
+        <button class="primary" onclick="submitHarvest()">➕ Ghi nhận thu hoạch</button>
+        <p class="muted" id="formMsg" style="margin-top:6px"></p>
+      </div>
+      <div class="card">
+        <b>📍 Xe dự kiến đến lúc 14:30</b> <span class="muted">(còn 45 phút)</span>
+      </div>
+      <div class="card">
+        <b>🕒 Lịch sử thu hoạch</b>
+        <div id="harvestHistory" style="margin-top:4px"></div>
+      </div>
+      <div class="card" style="border-color:var(--brand-gold)">
+        ✅ Cân điện tử tự động ghi nhận 100% sản lượng – không lo bị ép giá hay trừ hao hụt.
+      </div>
+    </section>
+
+    <section id="driver" class="view">
+      <div class="hero" id="nextStopHero"></div>
+      <div class="card">
+        <b>Tuyến hôm nay</b>
+        <p class="muted" style="margin-top:4px">5 điểm vườn · ưu tiên tự động theo cảnh báo AI · 🚚 vị trí xe gần đúng</p>
+        <div id="driverMap"></div>
+      </div>
+      <div class="card">
+        <b>Danh sách điểm dừng</b>
+        <div id="stopList" style="margin-top:6px"></div>
+      </div>
+      <button class="primary" onclick="simulateAlert()">🔄 Giả lập cảnh báo AI (vườn sắp lên men)</button>
+    </section>
+
+    <section id="supervisor" class="view">
+      <div class="hero">
+        <div class="stat-grid">
+          <div class="stat"><b>3</b><span>Xe đang chạy</span></div>
+          <div class="stat"><b id="alertCount">0</b><span>Cảnh báo AI</span></div>
+          <div class="stat"><b>142L</b><span>Tổng thu hôm nay</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <b>Bản đồ vườn dừa – Tiểu Cần, Trà Vinh</b>
+        <div id="supervisorMap"></div>
+      </div>
+      <div class="card">
+        <b>Nhật ký cảnh báo</b>
+        <div id="logFeed" class="log"><div class="muted">Chưa có cảnh báo nào hôm nay.</div></div>
+      </div>
+    </section>
+  </main>
+</div>
+<script>
+const gardens=[
+ {id:1,name:'Vườn A – ông Sok Tha',liters:28,status:'green',x:35,y:35,dist:2.1},
+ {id:2,name:'Vườn B – bà Thạch Sà Rin',liters:32,status:'yellow',x:80,y:150,dist:4.5},
+ {id:3,name:'Vườn C – ông Kiên Sóc',liters:25,status:'green',x:150,y:25,dist:3.0},
+ {id:4,name:'Vườn D – bà Neang Sươl',liters:30,status:'yellow',x:175,y:160,dist:5.2},
+ {id:5,name:'Vườn E – ông Chan Sơn',liters:27,status:'green',x:225,y:65,dist:2.8}
+];
+const factory={x:270,y:100};
+let order=[1,2,3,4,5];
+let alerts=0;
+let temp=31;
+
+let harvests=[
+ {time:'Hôm qua, 16:40',loc:'Vườn A - lô 3',liters:30,price:1500000,today:false},
+ {time:'2 ngày trước, 15:10',loc:'Vườn A - lô 3',liters:26,price:1300000,today:false},
+ {time:'3 ngày trước, 16:05',loc:'Vườn A - lô 3',liters:29,price:1450000,today:false}
+];
+
+function renderHarvests(){
+  const el=document.getElementById('harvestHistory');
+  el.innerHTML=harvests.map(function(h){
+    return '<div class="row"><span>'+h.time+'<br><span class="muted">'+h.loc+'</span></span><span>'+h.liters+'L<br><span class="muted">'+h.price.toLocaleString('vi-VN')+'đ</span></span></div>';
+  }).join('');
+  const total=harvests.filter(function(h){return h.today;}).reduce(function(s,h){return s+h.liters;},0);
+  document.getElementById('farmerTotal').textContent=total+'L';
+}
+
+function submitHarvest(){
+  const loc=document.getElementById('inLoc').value.trim();
+  const qty=parseFloat(document.getElementById('inQty').value);
+  const price=parseFloat(document.getElementById('inPrice').value);
+  const msg=document.getElementById('formMsg');
+  msg.style.opacity='1';
+  if(!loc||!qty||qty<=0||!price||price<=0){
+    msg.style.color='var(--status-red)';
+    msg.textContent='⚠️ Vui lòng nhập đủ địa điểm, số lượng và giá nhận được.';
+    return;
+  }
+  const now=new Date();
+  harvests.unshift({time:'Hôm nay, '+now.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}),loc:loc,liters:qty,price:price,today:true});
+  msg.style.color='var(--status-green)';
+  msg.textContent='✅ Đã ghi nhận thu hoạch lúc '+now.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('inQty').value='';
+  document.getElementById('inPrice').value='';
+  renderHarvests();
+}
+
+function renderTemp(){
+  const safeWindow=temp>=35?9:12;
+  const elapsed=4;
+  const remaining=safeWindow-elapsed;
+  let cls='green', label='an toàn';
+  if(remaining<=1){cls='red';label='nguy cơ lên men';}
+  else if(remaining<=4){cls='yellow';label='cần thu sớm';}
+  document.getElementById('tempVal').textContent=temp+'°C';
+  document.getElementById('tempDot').className='dot '+cls;
+  document.getElementById('tempLabel').textContent=label;
+  document.getElementById('tempWindow').innerHTML='Giới hạn an toàn: <b>'+safeWindow+'h</b> (bình thường 12h) · dự kiến còn <b>'+remaining+'h</b> trước khi cần thu gấp';
+  document.getElementById('heroDot').className='dot '+cls;
+  document.getElementById('heroStatus').textContent=label;
+}
+
+function letterOf(id){return String.fromCharCode(64+id);}
+
+function reroute(gardenId,reasonMsg){
+  const g=gardens.find(function(x){return x.id===gardenId;});
+  if(!g||g.status==='red')return;
+  g.status='red';
+  const oldSeq=order.map(letterOf).join('→');
+  order=[gardenId].concat(order.filter(function(i){return i!==gardenId;}));
+  const newSeq=order.map(letterOf).join('→');
+  alerts++;
+  document.getElementById('alertCount').textContent=alerts;
+  addLog(reasonMsg+' Lộ trình: '+oldSeq+' ➜ <b>'+newSeq+'</b>');
+  renderAll();
+  const first=document.querySelector('#stopList .row');
+  if(first){first.classList.add('flash');setTimeout(function(){first.classList.remove('flash');},1600);}
+}
+
+function raiseTemp(){
+  temp=Math.min(temp+3,39);
+  renderTemp();
+  if(temp>=35) reroute(1,'🌡️ Cảm biến Vườn A báo '+temp+'°C — nguy cơ lên men.');
+}
+
+function color(s){return s==='red'?'var(--status-red)':s==='yellow'?'var(--status-yellow)':'var(--status-green)';}
+
+function buildMap(id){
+  const el=document.getElementById(id);
+  const pts=order.map(i=>gardens.find(g=>g.id===i));
+  const line=pts.map(g=>g.x+','+g.y).join(' ')+' '+factory.x+','+factory.y;
+  const circles=pts.map(g=>'<circle cx="'+g.x+'" cy="'+g.y+'" r="12" fill="'+color(g.status)+'" stroke="#fff" stroke-width="2"/><text x="'+g.x+'" y="'+(g.y+4)+'" font-size="10" fill="#fff" text-anchor="middle" font-weight="700">'+g.id+'</text>').join('');
+  const tx=factory.x+(pts[0].x-factory.x)*0.3, ty=factory.y+(pts[0].y-factory.y)*0.3;
+  el.innerHTML='<svg viewBox="0 0 300 190"><polyline points="'+line+'" fill="none" stroke="var(--brand-gold)" stroke-width="2" stroke-dasharray="5 4"/>'+circles+'<rect x="'+(factory.x-15)+'" y="'+(factory.y-13)+'" width="30" height="26" rx="5" fill="var(--brand-green)"/><text x="'+factory.x+'" y="'+(factory.y+5)+'" font-size="14" text-anchor="middle">🏭</text><text x="'+tx+'" y="'+ty+'" font-size="16" text-anchor="middle">🚚</text></svg>';
+}
+
+function renderStops(){
+  document.getElementById('stopList').innerHTML=order.map(function(id,i){
+    const g=gardens.find(function(x){return x.id===id;});
+    return '<div class="row"><span><span class="dot '+g.status+'"></span>'+(i+1)+'. '+g.name+'</span><span>'+g.liters+'L</span></div>';
+  }).join('');
+  const n=gardens.find(function(g){return g.id===order[0];});
+  const eta=Math.round(n.dist/25*60);
+  document.getElementById('nextStopHero').innerHTML='<div class="eyebrow">➡️ Đang chỉ dẫn đến điểm tiếp theo</div><div class="big" style="font-size:20px">'+n.name+'</div><div class="sub">còn '+n.dist+'km · ETA ~'+eta+' phút · dự kiến '+n.liters+'L</div>';
+}
+
+function renderAll(){buildMap('driverMap');buildMap('supervisorMap');renderStops();renderHarvests();}
+
+function addLog(msg){
+  const el=document.getElementById('logFeed');
+  if(alerts===1) el.innerHTML='';
+  const t=new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
+  el.insertAdjacentHTML('afterbegin','<div>'+t+' — '+msg+'</div>');
+}
+
+function simulateAlert(){
+  const cand=gardens.filter(function(g){return g.status!=='red';});
+  if(!cand.length)return;
+  const g=cand[Math.floor(Math.random()*cand.length)];
+  reroute(g.id,'⚠️ AI phát hiện '+g.name+' có nguy cơ lên men.');
+}
+
+document.getElementById('inQty').addEventListener('input',function(){
+  const q=parseFloat(this.value);
+  document.getElementById('inPrice').value=q>0?Math.round(q*50000):'';
+});
+
+document.querySelectorAll('nav.tabs button').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('nav.tabs button').forEach(function(b){b.classList.remove('active');});
+    document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.view).classList.add('active');
+  });
+});
+renderAll();
+renderTemp();
+</script>
+</body>
+</html>
